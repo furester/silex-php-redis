@@ -11,6 +11,7 @@ class PhpRedisProvider implements ServiceProviderInterface
     {
         $app['redis'] = function () use ($app) {
             $thisRedis = new \Redis();
+            
             $host = isset($app['redis.host']) ? $app['redis.host'] : array();
             $port = isset($app['redis.port']) && is_int($app['redis.port']) ? $app['redis.port'] : 6379;
             $timeout = isset($app['redis.timeout']) && is_int($app['redis.timeout']) ? $app['redis.timeout'] : 0;
