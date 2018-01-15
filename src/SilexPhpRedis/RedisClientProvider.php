@@ -1,10 +1,5 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 namespace SilexPhpRedis;
 
 use Silex\Application;
@@ -47,7 +42,6 @@ class RedisClientProvider implements ServiceProviderInterface
                 $default = "default_$key";
                 if ($bag instanceof Application) {
                     $key = "$prefix.$key";
-                    var_dump($key);
                 }
                 if (!isset($bag[$key])) {
                     return $app["$prefix.$default"];
@@ -98,23 +92,36 @@ class RedisClientProvider implements ServiceProviderInterface
         });
 
         $app["$prefix.client_constructor"] = $app->protect(function ($parameters, $options) {
-            $thisRedis = new \Redis();
+            $host = isset($parameters['host']) ? $parameters['host'] : '127.0.0.1';
 
-            $host = isset($parameters['host']) ? $parameters['host'] : array();
-            $port = isset($parameters['port']) && is_int($parameters['port']) ? $parameters['port'] : 6379;
+            if (is_array($host)) {
+                $thisRedis = new \RedisCluster(null, $host);
+            }
+
             $timeout = isset($parameters['timeout']) && is_int($parameters['timeout']) ? $parameters['timeout'] : 0;
             $persistent = isset($parameters['persistent']) ? $parameters['persistent'] : false;
             $auth = isset($parameters['auth']) ? $parameters['auth'] : null;
             $serializerIgbinary = isset($options['serializer.igbinary']) ? $options['serializer.igbinary'] : false;
             $serializerPhp = isset($options['serializer.php']) ? $options['serializer.php'] : false;
             $prefix = isset($options['prefix']) ? $options['prefix'] : null;
-            $database = isset($parameters['database']) ? $parameters['database'] : null;
 
-            if ($persistent) {
-                $thisRedis->pconnect($host, $port, $timeout);
-            } else {
-                $thisRedis->connect($host, $port, $timeout);
+            if (!isset($thisRedis)) {
+                $port = isset($parameters['port']) && is_int($parameters['port']) ? $parameters['port'] : 6379;
+                $database = isset($parameters['database']) ? $parameters['database'] : null;
+
+                $thisRedis = new \Redis();
+                if ($persistent) {
+                    $thisRedis->pconnect($host, $port, $timeout);
+                } else {
+                    $thisRedis->connect($host, $port, $timeout);
+                }
+
+                // select isn't implemented in RedisCluster
+                if ($database) {
+                    $thisRedis->select($database);
+                }
             }
+
             if (!empty($auth)) {
                 $thisRedis->auth($auth);
             }
