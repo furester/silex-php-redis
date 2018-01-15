@@ -19,11 +19,18 @@ and run:
 
 This is just a silex provider module for phpredis extension, you will need to setup Redis (https://github.com/antirez/redis) and phpredis extension (https://github.com/nicolasff/phpredis).
 
+Note that Redis and RedisCluster don't implement a common interface and they use different methods for some operations,
+you have to consider this in your code.
 
 Example
 ----------------
 
 Check out simple example under "example" directory.
+
+To run the examples:
+
+    composer update
+    php -S 127.0.0.1:8081 example/example.php
 
 License
 -------
