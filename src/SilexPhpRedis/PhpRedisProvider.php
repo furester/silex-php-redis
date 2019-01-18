@@ -36,7 +36,7 @@ class PhpRedisProvider implements ServiceProviderInterface
                 $thisRedis->select($database);
             }
 
-            if ($serializerIgbinary) {
+            if ($serializerIgbinary && defined(\Redis::SERIALIZER_IGBINARY)) {
                 $thisRedis->setOption(\Redis::OPT_SERIALIZER, \Redis::SERIALIZER_IGBINARY);
             }
 
