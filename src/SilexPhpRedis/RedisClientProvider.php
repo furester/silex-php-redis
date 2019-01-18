@@ -104,10 +104,11 @@ class RedisClientProvider implements ServiceProviderInterface
             $serializerIgbinary = isset($options['serializer.igbinary']) ? $options['serializer.igbinary'] : false;
             $serializerPhp = isset($options['serializer.php']) ? $options['serializer.php'] : false;
             $prefix = isset($options['prefix']) ? $options['prefix'] : null;
+            $database = false;
 
             if (!isset($thisRedis)) {
                 $port = isset($parameters['port']) && is_int($parameters['port']) ? $parameters['port'] : 6379;
-                $database = isset($parameters['database']) ? $parameters['database'] : null;
+                $database = isset($parameters['database']) ? $parameters['database'] : false;
 
                 $thisRedis = new \Redis();
                 if ($persistent) {
@@ -125,7 +126,7 @@ class RedisClientProvider implements ServiceProviderInterface
             if (!empty($auth)) {
                 $thisRedis->auth($auth);
             }
-            if ($database) {
+            if ($database !== false) {
                 $thisRedis->select($database);
             }
             if ($serializerIgbinary) {
